@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKERFILE = 'workout-html/Dockerfile' // Specifies the Dockerfile path
+        DOCKERFILE = 'finexo-html/Dockerfile' // Specifies the Dockerfile path
         CONTAINER_NAME = 'webapp' // Minor typo fix for consistent naming
         IMAGE_NAME = 'joehay07/workout-website:1.0' // Defines the Docker image name and tag
         GIT_REPO_URL = 'https://github.com/joehaddy07/Devops-Jenkins.git' // GitHub repository URL
