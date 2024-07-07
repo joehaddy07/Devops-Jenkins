@@ -1,0 +1,53 @@
+pipeline {
+    agent {
+        label 'Agent'
+    }
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERFILE = 'workout-html/Dockerfile' // Specifies the Dockerfile path
+        CONTAINER_NAME = 'webapp' // Minor typo fix for consistent naming
+        IMAGE_NAME = 'joehay07/workout-website:1.0' // Defines the Docker image name and tag
+        GIT_REPO_URL = 'https://github.com/joehaddy07/Devops-Jenkins.git' // GitHub repository URL
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: "${env.GIT_REPO_URL}", branch: 'main' // Clones the main branch of the GitHub repo
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${env.IMAGE_NAME}", "-f ${env.DOCKERFILE} .") // Builds the Docker image from the specified Dockerfile
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', env.DOCKERHUB_CREDENTIALS) {
+                        docker.image("${env.IMAGE_NAME}").push('latest') // Pushes the Docker image to Docker Hub with the 'latest' tag
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker rmi ${env.IMAGE_NAME}:latest" // Removes the Docker image locally
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs() // Cleans up the Jenkins workspace
+        }
+    }
+}
